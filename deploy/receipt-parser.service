@@ -6,10 +6,11 @@ After=network.target
 Type=simple
 User=automation
 WorkingDirectory=/opt/business-automations
+Environment=NODE_ENV=production
+EnvironmentFile=/opt/business-automations/.env
 ExecStart=/usr/bin/npm run receipt-parser
 Restart=always
 RestartSec=10
-Environment=NODE_ENV=production
 
 [Install]
 WantedBy=multi-user.target
