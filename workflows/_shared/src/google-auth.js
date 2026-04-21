@@ -36,6 +36,10 @@ export class GoogleAuthClient {
 
   async getAccessToken() {
     const now = Math.floor(Date.now() / 1000);
+    const scopes = this.config.scopes || [
+      "https://www.googleapis.com/auth/drive",
+      "https://www.googleapis.com/auth/spreadsheets",
+    ];
 
     if (this.cachedToken && this.cachedToken.expiresAt > now + 60) {
       return this.cachedToken.accessToken;
@@ -43,10 +47,7 @@ export class GoogleAuthClient {
 
     const payload = {
       iss: this.config.serviceAccountEmail,
-      scope: [
-        "https://www.googleapis.com/auth/drive",
-        "https://www.googleapis.com/auth/spreadsheets",
-      ].join(" "),
+      scope: scopes.join(" "),
       aud: "https://oauth2.googleapis.com/token",
       exp: now + 3600,
       iat: now,

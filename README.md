@@ -21,6 +21,11 @@ This project is the home for custom automations that replace existing n8n workfl
 
 The first migration target is `workflows/receipt-parser`, which will replace the current receipt-processing n8n workflow.
 
+## Current Workflows
+
+- `workflows/receipt-parser`: Google Drive receipt OCR, parsing, Sheets writeback, and Telegram approval flow
+- `workflows/dad-joke-for-joey`: scheduled dad joke email sender using the Gmail API
+
 ## Deployment
 
 - local `.env`: project root, `./.env`
