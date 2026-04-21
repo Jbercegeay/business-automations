@@ -31,37 +31,58 @@ id automation || sudo useradd --system --create-home --shell /bin/bash automatio
 
 If you want to run the service as a different user, update the service file before enabling it.
 
-## 3. Choose repo access
+## 3. Configure private GitHub access
 
-Recommended: keep the repository private and give the server proper GitHub access.
+Recommended: keep the repository private and use a read-only SSH deploy key on the Ubuntu server.
 
-Public access is optional and should only be used if you intentionally want the code public.
-
-### Option A: Private repo deployment
-
-Use an SSH deploy key or another deliberate GitHub auth method for the server, then clone:
+### 3a. Create the deploy key on Ubuntu
 
 ```bash
-sudo mkdir -p /opt/business-automations
-sudo git clone <YOUR_PRIVATE_GIT_REMOTE> /opt/business-automations
+sudo mkdir -p /root/.ssh
+sudo ssh-keygen -t ed25519 -C "business-automations-deploy" -f /root/.ssh/business-automations-deploy -N ""
+sudo cat /root/.ssh/business-automations-deploy.pub
+```
+
+Copy the public key output.
+
+### 3b. Add the deploy key in GitHub
+
+In the GitHub repository:
+
+- open `Settings`
+- open `Deploy keys`
+- click `Add deploy key`
+- use a title like `ubuntu-business-automations`
+- paste the public key
+- leave `Allow write access` unchecked
+
+### 3c. Configure SSH for GitHub on Ubuntu
+
+```bash
+sudo bash -c 'cat > /root/.ssh/config <<EOF
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile /root/.ssh/business-automations-deploy
+  IdentitiesOnly yes
+EOF'
+sudo chmod 600 /root/.ssh/config
+sudo ssh-keyscan github.com | sudo tee -a /root/.ssh/known_hosts >/dev/null
+sudo chmod 644 /root/.ssh/known_hosts
+sudo ssh -T git@github.com
+```
+
+GitHub will usually respond with an authenticated message and `no shell access`. That is expected.
+
+## 4. Clone the repo and install dependencies
+
+```bash
+sudo git clone git@github.com:Jbercegeay/business-automations.git /opt/business-automations
 cd /opt/business-automations
 sudo npm ci
 ```
 
-### Option B: Public repo deployment
-
-If you intentionally make the repository public, you can clone it directly:
-
-```bash
-sudo mkdir -p /opt/business-automations
-sudo git clone https://github.com/Jbercegeay/business-automations.git /opt/business-automations
-cd /opt/business-automations
-sudo npm ci
-```
-
-If the private repo clone fails over HTTPS, prefer fixing GitHub access on the server instead of making the repo public just for deployment.
-
-## 4. Create the production `.env`
+## 5. Create the production `.env`
 
 ```bash
 sudo cp .env.example .env
@@ -78,7 +99,7 @@ sudo chmod 750 /opt/business-automations
 sudo chmod 640 /opt/business-automations/.env
 ```
 
-## 5. Prepare writable state
+## 6. Prepare writable state
 
 The receipt parser stores state in:
 
@@ -91,7 +112,7 @@ sudo mkdir -p /opt/business-automations/.data
 sudo chown -R automation:automation /opt/business-automations/.data
 ```
 
-## 6. Install the systemd service
+## 7. Install the systemd service
 
 Copy the included service template into `systemd`. It expects the runtime `.env` at `/opt/business-automations/.env`:
 
@@ -101,14 +122,14 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now receipt-parser
 ```
 
-## 7. Check logs
+## 8. Check logs
 
 ```bash
 sudo systemctl status receipt-parser
 sudo journalctl -u receipt-parser -f
 ```
 
-## 8. Updating later
+## 9. Updating later
 
 ```bash
 cd /opt/business-automations
@@ -122,3 +143,5 @@ sudo systemctl restart receipt-parser
 - The committed service file includes `EnvironmentFile=/opt/business-automations/.env`.
 - A committed `package-lock.json` is now included, so `npm ci` is the preferred production install and update command.
 - If `npm ci` fails because `package.json` and `package-lock.json` are out of sync, fix that mismatch in Git first and then pull again on the server.
+- Because the repository is cloned by `root`, future Git operations on the server are simplest if you keep using `sudo`.
+- Be careful when pasting the Google private key into `.env`; formatting matters, especially if the key uses escaped newlines.

@@ -26,6 +26,6 @@ The first migration target is `workflows/receipt-parser`, which will replace the
 - local `.env`: project root, `./.env`
 - Ubuntu `.env`: project root on the server, for example `/opt/business-automations/.env`
 - the Ubuntu `systemd` service loads `/opt/business-automations/.env` via `EnvironmentFile`
-- default deployment posture: keep the repo private and give the server proper GitHub access
+- default deployment posture: keep the repo private and use a read-only SSH deploy key for GitHub access
 - preferred production install/update command: `npm ci`
 - Ubuntu deployment guide: `docs/UBUNTU_DEPLOY.md`
