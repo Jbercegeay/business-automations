@@ -3,15 +3,22 @@
 set -euo pipefail
 
 APP_DIR="/opt/business-automations"
-SERVICE_NAME="receipt-parser"
+SERVICES=(
+  "receipt-parser"
+  "dad-joke-for-joey"
+)
 
 if [[ "${EUID}" -ne 0 ]]; then
   echo "Run this script with sudo."
   exit 1
 fi
 
-echo "Stopping ${SERVICE_NAME}..."
-systemctl stop "${SERVICE_NAME}"
+for service in "${SERVICES[@]}"; do
+  if systemctl list-unit-files "${service}.service" >/dev/null 2>&1; then
+    echo "Stopping ${service}..."
+    systemctl stop "${service}" || true
+  fi
+done
 
 echo "Pulling latest code..."
 git -C "${APP_DIR}" pull
@@ -19,8 +26,11 @@ git -C "${APP_DIR}" pull
 echo "Installing locked dependencies..."
 npm --prefix "${APP_DIR}" ci
 
-echo "Starting ${SERVICE_NAME}..."
-systemctl start "${SERVICE_NAME}"
-
-echo "Done. Current service status:"
-systemctl --no-pager --full status "${SERVICE_NAME}"
+for service in "${SERVICES[@]}"; do
+  if systemctl list-unit-files "${service}.service" >/dev/null 2>&1; then
+    echo "Starting ${service}..."
+    systemctl start "${service}"
+    echo "Current ${service} status:"
+    systemctl --no-pager --full status "${service}"
+  fi
+done

@@ -33,4 +33,5 @@ The first migration target is `workflows/receipt-parser`, which will replace the
 - the Ubuntu `systemd` service loads `/opt/business-automations/.env` via `EnvironmentFile`
 - default deployment posture: keep the repo private and use a read-only SSH deploy key for GitHub access
 - preferred production update command: `sudo bash /opt/business-automations/scripts/deploy-update.sh`
+- current service templates: `deploy/receipt-parser.service` and `deploy/dad-joke-for-joey.service`
 - Ubuntu deployment guide: `docs/UBUNTU_DEPLOY.md`
