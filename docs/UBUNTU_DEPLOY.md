@@ -31,16 +31,35 @@ id automation || sudo useradd --system --create-home --shell /bin/bash automatio
 
 If you want to run the service as a different user, update the service file before enabling it.
 
-## 3. Clone the repo
+## 3. Choose repo access
+
+Recommended: keep the repository private and give the server proper GitHub access.
+
+Public access is optional and should only be used if you intentionally want the code public.
+
+### Option A: Private repo deployment
+
+Use an SSH deploy key or another deliberate GitHub auth method for the server, then clone:
 
 ```bash
 sudo mkdir -p /opt/business-automations
-sudo git clone <YOUR_GIT_REMOTE> /opt/business-automations
+sudo git clone <YOUR_PRIVATE_GIT_REMOTE> /opt/business-automations
 cd /opt/business-automations
-sudo npm install
+sudo npm ci
 ```
 
-If the repository is private and HTTPS clone fails, use an SSH deploy key or clone as an authenticated user and then transfer ownership to `automation`.
+### Option B: Public repo deployment
+
+If you intentionally make the repository public, you can clone it directly:
+
+```bash
+sudo mkdir -p /opt/business-automations
+sudo git clone https://github.com/Jbercegeay/business-automations.git /opt/business-automations
+cd /opt/business-automations
+sudo npm ci
+```
+
+If the private repo clone fails over HTTPS, prefer fixing GitHub access on the server instead of making the repo public just for deployment.
 
 ## 4. Create the production `.env`
 
@@ -94,12 +113,12 @@ sudo journalctl -u receipt-parser -f
 ```bash
 cd /opt/business-automations
 sudo git pull
-sudo npm install
+sudo npm ci
 sudo systemctl restart receipt-parser
 ```
 
 ## Notes
 
 - The committed service file includes `EnvironmentFile=/opt/business-automations/.env`.
-- `npm install` is used for now because the repo does not yet include a `package-lock.json`.
-- Once a lockfile is committed, prefer a more repeatable install flow for production updates.
+- A committed `package-lock.json` is now included, so `npm ci` is the preferred production install and update command.
+- If `npm ci` fails because `package.json` and `package-lock.json` are out of sync, fix that mismatch in Git first and then pull again on the server.
