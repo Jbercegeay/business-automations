@@ -24,7 +24,7 @@ The first migration target is `workflows/receipt-parser`, which will replace the
 ## Current Workflows
 
 - `workflows/receipt-parser`: Google Drive receipt OCR, parsing, Sheets writeback, and Telegram approval flow
-- `workflows/dad-joke-for-joey`: scheduled dad joke email sender using the Gmail API
+- `workflows/dad-joke-for-joey`: scheduled dad joke email sender using Gmail SMTP
 
 ## Deployment
 

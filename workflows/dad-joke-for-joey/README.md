@@ -6,7 +6,7 @@ This workflow replaces the n8n `Dad Joke for Joey` automation in code.
 
 - Node.js 20+
 - environment variables loaded from the project root `.env`
-- Google service account access with Gmail send scope
+- Gmail SMTP access using a personal Gmail app password
 
 ## Commands
 

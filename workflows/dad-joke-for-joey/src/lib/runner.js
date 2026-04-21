@@ -52,7 +52,7 @@ async function sendDadJoke(context) {
 
   const joke = await fetchDadJoke(services);
 
-  await services.gmail.sendMessage({
+  await services.email.sendMessage({
     to: config.gmail.recipientEmail,
     subject: config.gmail.subject,
     text: joke,

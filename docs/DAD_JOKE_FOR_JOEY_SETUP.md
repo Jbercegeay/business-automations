@@ -5,35 +5,48 @@
 Add these to the project root `.env`:
 
 - `DAD_JOKE_RECIPIENT_EMAIL`
-- `DAD_JOKE_FROM_EMAIL` optional
+- `DAD_JOKE_SMTP_USER`
+- `DAD_JOKE_SMTP_APP_PASSWORD`
+- `DAD_JOKE_FROM_EMAIL` optional, defaults to the SMTP username
 - `DAD_JOKE_SUBJECT` optional, defaults to `Daily Dad Joke`
 - `DAD_JOKE_TIMEZONE` optional, defaults to `America/Chicago`
 - `DAD_JOKE_SEND_HOUR_24` optional, defaults to `8`
 - `DAD_JOKE_POLL_INTERVAL_MS` optional, defaults to `60000`
+- `DAD_JOKE_SMTP_HOST` optional, defaults to `smtp.gmail.com`
+- `DAD_JOKE_SMTP_PORT` optional, defaults to `465`
+- `DAD_JOKE_SMTP_SECURE` optional, defaults to `true`
 
 Example:
 
 ```dotenv
 DAD_JOKE_RECIPIENT_EMAIL=joey.cox@integer.net
-DAD_JOKE_FROM_EMAIL=
+DAD_JOKE_SMTP_USER=jbercegeay74@gmail.com
+DAD_JOKE_SMTP_APP_PASSWORD=your_16_character_app_password
+DAD_JOKE_FROM_EMAIL=jbercegeay74@gmail.com
 DAD_JOKE_SUBJECT=Daily Dad Joke
 DAD_JOKE_TIMEZONE=America/Chicago
 DAD_JOKE_SEND_HOUR_24=8
 DAD_JOKE_POLL_INTERVAL_MS=60000
+DAD_JOKE_SMTP_HOST=smtp.gmail.com
+DAD_JOKE_SMTP_PORT=465
+DAD_JOKE_SMTP_SECURE=true
 ```
 
 ## 2. Gmail access
 
-This workflow sends mail through the Gmail API using the shared Google service account flow.
+This workflow sends mail through Gmail SMTP using a personal Gmail account.
 
 Requirements:
 
-- the service account must be allowed to use Gmail send scope
-- if your Google Workspace setup uses domain-wide delegation, `GOOGLE_IMPERSONATED_USER_EMAIL` should be the mailbox that sends the joke
+- turn on 2-Step Verification for the Gmail account
+- create a Gmail app password for this workflow
+- use the Gmail address as `DAD_JOKE_SMTP_USER`
+- use the 16-character app password as `DAD_JOKE_SMTP_APP_PASSWORD`
 
-The code requests:
+Recommended sender setup:
 
-- `https://www.googleapis.com/auth/gmail.send`
+- `DAD_JOKE_SMTP_USER=jbercegeay74@gmail.com`
+- `DAD_JOKE_FROM_EMAIL=jbercegeay74@gmail.com`
 
 ## 3. Run locally
 

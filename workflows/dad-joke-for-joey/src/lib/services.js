@@ -2,10 +2,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { loadEnvFile } from "../../../_shared/src/env.js";
-import { GmailClient } from "../../../_shared/src/gmail.js";
-import { GoogleAuthClient } from "../../../_shared/src/google-auth.js";
 import { fetchJson } from "../../../_shared/src/http.js";
 import { createLogger } from "../../../_shared/src/logger.js";
+import { SmtpClient } from "../../../_shared/src/smtp.js";
 import { loadDadJokeConfig } from "./config.js";
 import { DadJokeStateStore } from "./state-store.js";
 
@@ -20,10 +19,8 @@ export function createDadJokeContext() {
   const logger = createLogger("dad-joke-for-joey");
   const stateStore = new DadJokeStateStore(projectRoot);
 
-  const googleAuth = new GoogleAuthClient(config.google);
-
   const services = {
-    gmail: new GmailClient(googleAuth),
+    email: new SmtpClient(config.smtp),
     http: {
       getJson(url, options = {}) {
         return fetchJson(url, options);

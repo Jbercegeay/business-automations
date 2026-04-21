@@ -1,7 +1,7 @@
 const REQUIRED_KEYS = [
-  "GOOGLE_SERVICE_ACCOUNT_EMAIL",
-  "GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY",
   "DAD_JOKE_RECIPIENT_EMAIL",
+  "DAD_JOKE_SMTP_USER",
+  "DAD_JOKE_SMTP_APP_PASSWORD",
 ];
 
 function normalizeEnvValue(value) {
@@ -31,20 +31,19 @@ export function loadDadJokeConfig(env = process.env) {
       timezone: normalizeEnvValue(env.DAD_JOKE_TIMEZONE || "") || "America/Chicago",
       sendHour24: Number(env.DAD_JOKE_SEND_HOUR_24 || 8),
     },
-    google: {
-      serviceAccountEmail: normalizeEnvValue(
-        env.GOOGLE_SERVICE_ACCOUNT_EMAIL || "",
-      ),
-      privateKey: normalizeEnvValue(env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || ""),
-      impersonatedUserEmail: normalizeEnvValue(
-        env.GOOGLE_IMPERSONATED_USER_EMAIL || "",
-      ),
-      scopes: ["https://www.googleapis.com/auth/gmail.send"],
-    },
     gmail: {
       recipientEmail: normalizeEnvValue(env.DAD_JOKE_RECIPIENT_EMAIL || ""),
       subject: normalizeEnvValue(env.DAD_JOKE_SUBJECT || "") || "Daily Dad Joke",
-      fromEmail: normalizeEnvValue(env.DAD_JOKE_FROM_EMAIL || ""),
+      fromEmail:
+        normalizeEnvValue(env.DAD_JOKE_FROM_EMAIL || "") ||
+        normalizeEnvValue(env.DAD_JOKE_SMTP_USER || ""),
+    },
+    smtp: {
+      host: normalizeEnvValue(env.DAD_JOKE_SMTP_HOST || "") || "smtp.gmail.com",
+      port: Number(env.DAD_JOKE_SMTP_PORT || 465),
+      secure: normalizeEnvValue(env.DAD_JOKE_SMTP_SECURE || "") !== "false",
+      username: normalizeEnvValue(env.DAD_JOKE_SMTP_USER || ""),
+      password: normalizeEnvValue(env.DAD_JOKE_SMTP_APP_PASSWORD || ""),
     },
   };
 }
