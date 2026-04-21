@@ -120,33 +120,46 @@ class OpenAiLinkedinGeneratorClient {
     this.imageSystemPrompt = loadPrompt("image-system.txt");
   }
 
-  async generateContentPackage({ video, transcript }) {
-    const response = await fetchJson("https://api.openai.com/v1/chat/completions", {
+  async requestOpenAiChat({ model, messages, responseFormat = null }) {
+    const body = {
+      model,
+      messages,
+    };
+
+    if (responseFormat) {
+      body.response_format = responseFormat;
+    }
+
+    return fetchJson("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.config.apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: this.config.model,
-        response_format: {
-          type: "json_schema",
-          json_schema: CONTENT_SCHEMA,
+      body: JSON.stringify(body),
+    });
+  }
+
+  async generateContentPackage({ video, transcript }) {
+    const response = await this.requestOpenAiChat({
+      model: this.config.model,
+      responseFormat: {
+        type: "json_schema",
+        json_schema: CONTENT_SCHEMA,
+      },
+      messages: [
+        {
+          role: "system",
+          content: this.contentSystemPrompt,
         },
-        messages: [
-          {
-            role: "system",
-            content: this.contentSystemPrompt,
-          },
-          {
-            role: "user",
-            content: JSON.stringify({
-              video,
-              transcript,
-            }),
-          },
-        ],
-      }),
+        {
+          role: "user",
+          content: JSON.stringify({
+            video,
+            transcript,
+          }),
+        },
+      ],
     });
 
     const content = response.choices?.[0]?.message?.content;
@@ -158,28 +171,21 @@ class OpenAiLinkedinGeneratorClient {
   }
 
   async generateImagePrompt({ video, linkedinPost }) {
-    const response = await fetchJson("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.config.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: this.config.model,
-        messages: [
-          {
-            role: "system",
-            content: this.imageSystemPrompt,
-          },
-          {
-            role: "user",
-            content: JSON.stringify({
-              title: video.title,
-              linkedinPost,
-            }),
-          },
-        ],
-      }),
+    const response = await this.requestOpenAiChat({
+      model: this.config.model,
+      messages: [
+        {
+          role: "system",
+          content: this.imageSystemPrompt,
+        },
+        {
+          role: "user",
+          content: JSON.stringify({
+            title: video.title,
+            linkedinPost,
+          }),
+        },
+      ],
     });
 
     const prompt = response.choices?.[0]?.message?.content?.trim();
@@ -217,6 +223,170 @@ class OpenAiLinkedinGeneratorClient {
   }
 }
 
+class OpenRouterLinkedinTextClient {
+  constructor(config) {
+    this.config = config;
+    this.contentSystemPrompt = loadPrompt("content-system.txt");
+    this.imageSystemPrompt = loadPrompt("image-system.txt");
+  }
+
+  buildHeaders() {
+    const headers = {
+      Authorization: `Bearer ${this.config.apiKey}`,
+      "Content-Type": "application/json",
+    };
+
+    if (this.config.httpReferer) {
+      headers["HTTP-Referer"] = this.config.httpReferer;
+    }
+
+    if (this.config.appTitle) {
+      headers["X-Title"] = this.config.appTitle;
+    }
+
+    return headers;
+  }
+
+  async requestOpenRouter({ messages }) {
+    return fetchJson(`${this.config.baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: this.buildHeaders(),
+      body: JSON.stringify({
+        model: this.config.textModel,
+        messages,
+      }),
+    });
+  }
+
+  parseContentPackage(content) {
+    const trimmed = String(content || "").trim();
+    const withoutFences = trimmed
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+    const start = withoutFences.indexOf("{");
+    const end = withoutFences.lastIndexOf("}");
+    const candidate =
+      start !== -1 && end !== -1 && end > start
+        ? withoutFences.slice(start, end + 1)
+        : withoutFences;
+    const parsed = JSON.parse(candidate);
+
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      typeof parsed.linkedinPost !== "string" ||
+      typeof parsed.emailHtml !== "string"
+    ) {
+      throw new Error("OpenRouter returned an invalid LinkedIn content package.");
+    }
+
+    return {
+      linkedinPost: parsed.linkedinPost.trim(),
+      emailHtml: parsed.emailHtml.trim(),
+    };
+  }
+
+  async generateContentPackage({ video, transcript }) {
+    const response = await this.requestOpenRouter({
+      messages: [
+        {
+          role: "system",
+          content: this.contentSystemPrompt,
+        },
+        {
+          role: "user",
+          content: JSON.stringify({
+            video,
+            transcript,
+          }),
+        },
+      ],
+    });
+
+    const content = response.choices?.[0]?.message?.content;
+    if (!content) {
+      throw new Error("OpenRouter returned no structured content package.");
+    }
+
+    return this.parseContentPackage(content);
+  }
+
+  async generateImagePrompt({ video, linkedinPost }) {
+    const response = await this.requestOpenRouter({
+      messages: [
+        {
+          role: "system",
+          content: this.imageSystemPrompt,
+        },
+        {
+          role: "user",
+          content: JSON.stringify({
+            title: video.title,
+            linkedinPost,
+          }),
+        },
+      ],
+    });
+
+    const prompt = response.choices?.[0]?.message?.content?.trim();
+    if (!prompt) {
+      throw new Error("OpenRouter returned no image prompt.");
+    }
+
+    return prompt;
+  }
+}
+
+class LinkedinTextGenerationService {
+  constructor({ logger, openrouter, openai }) {
+    this.logger = logger;
+    this.openrouter = openrouter;
+    this.openai = openai;
+  }
+
+  async generateContentPackage(input) {
+    if (!this.openrouter) {
+      return this.openai.generateContentPackage(input);
+    }
+
+    try {
+      this.logger.info("Generating content package with OpenRouter", {
+        model: this.openrouter.config.textModel,
+      });
+      return await this.openrouter.generateContentPackage(input);
+    } catch (error) {
+      this.logger.warn("OpenRouter content generation failed, falling back to OpenAI", {
+        model: this.openrouter.config.textModel,
+        message: error.message,
+        body: error.body,
+      });
+      return this.openai.generateContentPackage(input);
+    }
+  }
+
+  async generateImagePrompt(input) {
+    if (!this.openrouter) {
+      return this.openai.generateImagePrompt(input);
+    }
+
+    try {
+      this.logger.info("Generating image prompt with OpenRouter", {
+        model: this.openrouter.config.textModel,
+      });
+      return await this.openrouter.generateImagePrompt(input);
+    } catch (error) {
+      this.logger.warn("OpenRouter image prompt generation failed, falling back to OpenAI", {
+        model: this.openrouter.config.textModel,
+        message: error.message,
+        body: error.body,
+      });
+      return this.openai.generateImagePrompt(input);
+    }
+  }
+}
+
 export function createLinkedinAiFirstGeneratorContext() {
   loadEnvFile(projectRoot);
 
@@ -241,6 +411,14 @@ export function createLinkedinAiFirstGeneratorContext() {
     sheets: new GoogleSheetsClient(googleAuth),
     gmail: new GmailClient(googleAuth),
   };
+
+  const openrouter =
+    config.openrouter.apiKey ? new OpenRouterLinkedinTextClient(config.openrouter) : null;
+  services.text = new LinkedinTextGenerationService({
+    logger,
+    openrouter,
+    openai: services.openai,
+  });
 
   return {
     projectRoot,

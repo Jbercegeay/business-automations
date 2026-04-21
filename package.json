@@ -8,9 +8,11 @@
     "receipt-parser:once": "node workflows/receipt-parser/src/index.js --once",
     "linkedin-ai-first-generator": "node workflows/linkedin-ai-first-generator/src/index.js",
     "linkedin-ai-first-generator:once": "node workflows/linkedin-ai-first-generator/src/index.js --once",
+    "linkedin-model-benchmark": "node workflows/linkedin-model-benchmark/src/index.js",
+    "linkedin-model-benchmark:once": "node workflows/linkedin-model-benchmark/src/index.js",
     "dad-joke-for-joey": "node workflows/dad-joke-for-joey/src/index.js",
     "dad-joke-for-joey:once": "node workflows/dad-joke-for-joey/src/index.js --once",
-    "lint": "node --check workflows/receipt-parser/src/index.js && node --check workflows/linkedin-ai-first-generator/src/index.js && node --check workflows/dad-joke-for-joey/src/index.js"
+    "lint": "node --check workflows/receipt-parser/src/index.js && node --check workflows/linkedin-ai-first-generator/src/index.js && node --check workflows/linkedin-model-benchmark/src/index.js && node --check workflows/dad-joke-for-joey/src/index.js"
   },
   "engines": {
     "node": ">=20"

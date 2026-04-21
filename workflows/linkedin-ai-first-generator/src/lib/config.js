@@ -111,6 +111,18 @@ export function loadLinkedinAiFirstGeneratorConfig(env = process.env, projectRoo
         normalizeEnvValue(env.LINKEDIN_AI_FIRST_GENERATOR_IMAGE_QUALITY || "") ||
         "medium",
     },
+    openrouter: {
+      apiKey: normalizeEnvValue(env.OPENROUTER_API_KEY || ""),
+      baseUrl:
+        normalizeEnvValue(env.OPENROUTER_BASE_URL || "") ||
+        "https://openrouter.ai/api/v1",
+      httpReferer: normalizeEnvValue(env.OPENROUTER_HTTP_REFERER || ""),
+      appTitle: normalizeEnvValue(env.OPENROUTER_APP_TITLE || ""),
+      textModel:
+        normalizeEnvValue(
+          env.LINKEDIN_AI_FIRST_GENERATOR_OPENROUTER_TEXT_MODEL || "",
+        ) || "openai/gpt-oss-120b:free",
+    },
     notification: {
       recipientEmail: normalizeEnvValue(
         env.LINKEDIN_AI_FIRST_GENERATOR_NOTIFY_EMAIL || "",

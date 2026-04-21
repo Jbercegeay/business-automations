@@ -24,7 +24,8 @@ The first migration target is `workflows/receipt-parser`, which will replace the
 ## Current Workflows
 
 - `workflows/receipt-parser`: Google Drive receipt OCR, parsing, Sheets writeback, and Telegram approval flow
-- `workflows/linkedin-ai-first-generator`: once-a-day latest YouTube video to transcript, LinkedIn draft, executive HTML brief, Drive image, Sheets review queue, and optional Gmail notification
+- `workflows/linkedin-ai-first-generator`: once-a-day latest YouTube video to transcript, OpenRouter-first LinkedIn draft + executive HTML brief, Drive image, Sheets review queue, and optional Gmail notification
+- `workflows/linkedin-model-benchmark`: fixed-set 3-model OpenRouter benchmark for LinkedIn post and executive email quality
 - `workflows/dad-joke-for-joey`: scheduled dad joke email sender using Gmail SMTP
 
 ## Deployment

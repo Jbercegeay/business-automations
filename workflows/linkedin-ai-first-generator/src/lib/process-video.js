@@ -74,13 +74,13 @@ export async function processLatestVideoContent(context, video) {
   const transcript = cleanTranscriptPayload(transcriptPayload);
 
   logger.info("Generating content package", { videoId: video.id });
-  const contentPackage = await services.openai.generateContentPackage({
+  const contentPackage = await services.text.generateContentPackage({
     video,
     transcript,
   });
 
   logger.info("Generating image prompt", { videoId: video.id });
-  const imagePrompt = await services.openai.generateImagePrompt({
+  const imagePrompt = await services.text.generateImagePrompt({
     video,
     linkedinPost: contentPackage.linkedinPost,
   });
