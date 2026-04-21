@@ -1,0 +1,14 @@
+{
+  "name": "business-automations",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "receipt-parser": "node workflows/receipt-parser/src/index.js",
+    "receipt-parser:once": "node workflows/receipt-parser/src/index.js --once",
+    "lint": "node --check workflows/receipt-parser/src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

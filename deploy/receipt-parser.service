@@ -1,0 +1,15 @@
+[Unit]
+Description=Business Automations Receipt Parser
+After=network.target
+
+[Service]
+Type=simple
+User=automation
+WorkingDirectory=/opt/business-automations
+ExecStart=/usr/bin/npm run receipt-parser
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
