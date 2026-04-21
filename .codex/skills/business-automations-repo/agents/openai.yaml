@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Automations Repo"
+  short_description: "Repo conventions for automation workflows"
+  default_prompt: "Use $business-automations-repo to add or extend an automation in this repository."
