@@ -131,6 +131,14 @@ sudo journalctl -u receipt-parser -f
 
 ## 9. Updating later
 
+Preferred one-command update:
+
+```bash
+sudo bash /opt/business-automations/scripts/deploy-update.sh
+```
+
+Manual equivalent:
+
 ```bash
 sudo systemctl stop receipt-parser
 sudo git -C /opt/business-automations pull
@@ -145,4 +153,5 @@ sudo systemctl start receipt-parser
 - If `npm ci` fails because `package.json` and `package-lock.json` are out of sync, fix that mismatch in Git first and then pull again on the server.
 - Because the repository is cloned by `root`, future Git operations on the server are simplest if you keep using `sudo`.
 - The `git -C` and `npm --prefix` forms avoid needing to `cd` into `/opt/business-automations` from a user that does not have direct directory access.
+- The repo includes `scripts/deploy-update.sh` to wrap the tested stop, pull, `npm ci`, and start sequence.
 - Be careful when pasting the Google private key into `.env`; formatting matters, especially if the key uses escaped newlines.
