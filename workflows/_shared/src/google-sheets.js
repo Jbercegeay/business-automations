@@ -18,6 +18,22 @@ export class GoogleSheetsClient {
   }
 
   async appendRow(spreadsheetId, sheetName, row) {
+    return this.appendValues(spreadsheetId, sheetName, [[
+      row.ID,
+      row.Date,
+      row.Vendor,
+      row["Vendor Address"],
+      row["Item Names"],
+      row["Item Prices"],
+      row.Quantity || "",
+      row.Subtotal,
+      row.Tax,
+      row.Total,
+      row.Category,
+    ]]);
+  }
+
+  async appendValues(spreadsheetId, sheetName, values) {
     const url =
       `${SHEETS_BASE_URL}/${spreadsheetId}/values/` +
       `${encodeURIComponent(sheetName)}:append?valueInputOption=USER_ENTERED`;
@@ -25,21 +41,7 @@ export class GoogleSheetsClient {
     return this.request(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        values: [[
-          row.ID,
-          row.Date,
-          row.Vendor,
-          row["Vendor Address"],
-          row["Item Names"],
-          row["Item Prices"],
-          row.Quantity || "",
-          row.Subtotal,
-          row.Tax,
-          row.Total,
-          row.Category,
-        ]],
-      }),
+      body: JSON.stringify({ values }),
     });
   }
 

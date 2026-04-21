@@ -27,18 +27,53 @@ export class GmailClient {
   }
 
   async sendMessage({ to, subject, text, from }) {
-    const lines = [
+    return this.sendRichMessage({ to, subject, text, from });
+  }
+
+  async sendRichMessage({ to, subject, text, html, from }) {
+    const headerLines = [
       `To: ${to}`,
       `Subject: ${subject}`,
       "MIME-Version: 1.0",
-      'Content-Type: text/plain; charset="UTF-8"',
     ];
 
     if (from) {
-      lines.unshift(`From: ${from}`);
+      headerLines.unshift(`From: ${from}`);
     }
 
-    const raw = `${lines.join("\r\n")}\r\n\r\n${text}`;
+    let raw;
+
+    if (html && text) {
+      const boundary = `gmail-boundary-${Date.now()}`;
+      raw = [
+        ...headerLines,
+        `Content-Type: multipart/alternative; boundary="${boundary}"`,
+        "",
+        `--${boundary}`,
+        'Content-Type: text/plain; charset="UTF-8"',
+        "",
+        text,
+        `--${boundary}`,
+        'Content-Type: text/html; charset="UTF-8"',
+        "",
+        html,
+        `--${boundary}--`,
+      ].join("\r\n");
+    } else if (html) {
+      raw = [
+        ...headerLines,
+        'Content-Type: text/html; charset="UTF-8"',
+        "",
+        html,
+      ].join("\r\n");
+    } else {
+      raw = [
+        ...headerLines,
+        'Content-Type: text/plain; charset="UTF-8"',
+        "",
+        text || "",
+      ].join("\r\n");
+    }
 
     return this.request(`${GMAIL_BASE_URL}/${this.userId}/messages/send`, {
       method: "POST",

@@ -1,0 +1,16 @@
+[Unit]
+Description=Business Automations LinkedIn AI First Generator
+After=network.target
+
+[Service]
+Type=simple
+User=automation
+WorkingDirectory=/opt/business-automations
+Environment=NODE_ENV=production
+EnvironmentFile=/opt/business-automations/.env
+ExecStart=/usr/bin/npm run linkedin-ai-first-generator
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

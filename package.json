@@ -6,14 +6,18 @@
   "scripts": {
     "receipt-parser": "node workflows/receipt-parser/src/index.js",
     "receipt-parser:once": "node workflows/receipt-parser/src/index.js --once",
+    "linkedin-ai-first-generator": "node workflows/linkedin-ai-first-generator/src/index.js",
+    "linkedin-ai-first-generator:once": "node workflows/linkedin-ai-first-generator/src/index.js --once",
     "dad-joke-for-joey": "node workflows/dad-joke-for-joey/src/index.js",
     "dad-joke-for-joey:once": "node workflows/dad-joke-for-joey/src/index.js --once",
-    "lint": "node --check workflows/receipt-parser/src/index.js && node --check workflows/dad-joke-for-joey/src/index.js"
+    "lint": "node --check workflows/receipt-parser/src/index.js && node --check workflows/linkedin-ai-first-generator/src/index.js && node --check workflows/dad-joke-for-joey/src/index.js"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
+    "@google-cloud/local-auth": "^3.0.1",
+    "googleapis": "^171.4.0",
     "nodemailer": "^8.0.5"
   }
 }

@@ -6,6 +6,7 @@ APP_DIR="/opt/business-automations"
 SERVICES=(
   "receipt-parser"
   "dad-joke-for-joey"
+  "linkedin-ai-first-generator"
 )
 
 if [[ "${EUID}" -ne 0 ]]; then

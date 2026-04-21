@@ -24,6 +24,7 @@ The first migration target is `workflows/receipt-parser`, which will replace the
 ## Current Workflows
 
 - `workflows/receipt-parser`: Google Drive receipt OCR, parsing, Sheets writeback, and Telegram approval flow
+- `workflows/linkedin-ai-first-generator`: once-a-day latest YouTube video to transcript, LinkedIn draft, executive HTML brief, Drive image, Sheets review queue, and optional Gmail notification
 - `workflows/dad-joke-for-joey`: scheduled dad joke email sender using Gmail SMTP
 
 ## Deployment
@@ -33,5 +34,5 @@ The first migration target is `workflows/receipt-parser`, which will replace the
 - the Ubuntu `systemd` service loads `/opt/business-automations/.env` via `EnvironmentFile`
 - default deployment posture: keep the repo private and use a read-only SSH deploy key for GitHub access
 - preferred production update command: `sudo bash /opt/business-automations/scripts/deploy-update.sh`
-- current service templates: `deploy/receipt-parser.service` and `deploy/dad-joke-for-joey.service`
+- current service templates: `deploy/receipt-parser.service`, `deploy/dad-joke-for-joey.service`, and `deploy/linkedin-ai-first-generator.service`
 - Ubuntu deployment guide: `docs/UBUNTU_DEPLOY.md`
