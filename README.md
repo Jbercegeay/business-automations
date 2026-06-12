@@ -1,6 +1,6 @@
 # Business Automations
 
-This project is the home for custom automations that replace existing n8n workflows.
+Custom Node.js automations that replace visual n8n workflows with version-controlled code.
 
 ## Goals
 
@@ -28,12 +28,49 @@ The first migration target is `workflows/receipt-parser`, which will replace the
 - `workflows/linkedin-model-benchmark`: fixed-set 3-model OpenRouter benchmark for LinkedIn post and executive email quality
 - `workflows/dad-joke-for-joey`: scheduled dad joke email sender using Gmail SMTP
 
+## Tech Stack
+
+- Node.js 20+
+- Google APIs
+- Nodemailer
+- Environment-based configuration
+- `systemd` service templates for server deployment
+
+## Local Development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Copy `.env.example` to `.env` and fill in local credentials for the workflow you are running.
+
+Run a workflow once:
+
+```bash
+npm run receipt-parser:once
+npm run linkedin-ai-first-generator:once
+npm run linkedin-model-benchmark:once
+npm run dad-joke-for-joey:once
+```
+
+Check JavaScript syntax across workflow entry points:
+
+```bash
+npm run lint
+```
+
 ## Deployment
 
 - local `.env`: project root, `./.env`
 - Ubuntu `.env`: project root on the server, for example `/opt/business-automations/.env`
 - the Ubuntu `systemd` service loads `/opt/business-automations/.env` via `EnvironmentFile`
-- default deployment posture: keep the repo private and use a read-only SSH deploy key for GitHub access
+- use server-local environment files and deploy keys for production credentials
 - preferred production update command: `sudo bash /opt/business-automations/scripts/deploy-update.sh`
 - current service templates: `deploy/receipt-parser.service`, `deploy/dad-joke-for-joey.service`, and `deploy/linkedin-ai-first-generator.service`
 - Ubuntu deployment guide: `docs/UBUNTU_DEPLOY.md`
+
+## Notes
+
+Do not commit tokens, OAuth credentials, SMTP passwords, or client data. Production secrets should live only in deployment environment files or provider secret stores.
